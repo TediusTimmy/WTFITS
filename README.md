@@ -35,3 +35,5 @@ Half of these (`-1`, `-2`, and `-3`) are fixed precision: changing the working p
 Manual
 ------
 See [Le Manuel](Manuel.md).
+
+Quick notes: use `G` to go to a table and display it like a sheet (also note that it behaves like `g` in not showing what you're typing), and remember that `sqlite_schema` is always a table.
