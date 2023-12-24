@@ -52,6 +52,7 @@ private:
    size_t precision;
 
 public:
+   mpfr_NumberHolder() = delete;
    mpfr_NumberHolder(mpfr_srcptr src, size_t precision) : precision(precision)
     {
       mpfr_init2(value, mpfr_get_prec(src));
@@ -120,11 +121,11 @@ public:
           {
             if (res[0] == '-')
              {
-               res = res.substr(0, 2) + '.' + res.substr(2);
+               res.insert(2U, 1U, '.');
              }
             else
              {
-               res = res.substr(0, 1) + '.' + res.substr(1);
+               res.insert(1U, 1U, '.');
              }
           }
 

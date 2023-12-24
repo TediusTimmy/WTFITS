@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlite3.h>
 #include <limits>
+#include <numeric>
+#include <algorithm>
 
 TableView::TableView(const std::string& sheetName, void *db) : sheetName(sheetName), db(db), rows(~0U), cols(~0U), last(0U)
  {
@@ -220,20 +222,10 @@ Forwards::Engine::Cell* TableView::getCellAt(size_t col, size_t row, const std::
 
       if (cellCache.size() > maxCacheSize)
        {
-         size_t min = std::numeric_limits<size_t>::max();
-         for (auto pair : lru)
-          {
-            min = std::min(min, pair.second);
-          }
-         for (auto pair : lru)
-          {
-            if (pair.second == min)
-             {
-               cellCache.erase(makeCellId(pair.first->col, pair.first->row));
-               lru.erase(pair.first);
-               break;
-             }
-          }
+         size_t min = std::accumulate(lru.begin(), lru.end(), std::numeric_limits<size_t>::max(), [](size_t x, auto y){ return std::min(x, y.second);});
+         auto iter = std::find_if(lru.begin(), lru.end(), [=](auto x){ return min == x.second; });
+         cellCache.erase(makeCellId(iter->first->col, iter->first->row));
+         lru.erase(iter->first);
        }
     }
 

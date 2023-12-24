@@ -42,7 +42,7 @@ private:
    SlowFloat::SlowFloat value;
 
 public:
-   SlowFloat_NumberHolder() { }
+   SlowFloat_NumberHolder() = delete;
    explicit SlowFloat_NumberHolder(const SlowFloat::SlowFloat& src) : value(src) { }
    ~SlowFloat_NumberHolder() { }
 

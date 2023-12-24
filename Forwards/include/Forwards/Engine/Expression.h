@@ -142,7 +142,7 @@ namespace Engine
    public:
       std::shared_ptr<Expression> arg;
 
-      Name(const Input::Token&);
+      explicit Name(const Input::Token&);
 
       std::shared_ptr<Types::ValueType> evaluate (CallingContext&) const override;
       std::string toString(size_t, size_t, int) const override;

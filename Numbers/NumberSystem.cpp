@@ -93,7 +93,7 @@ NumberSystem::~NumberSystem()
  {
  }
 
-NumberSystem_Round_Mode NumberSystem::getRoundMode() const
+NumberSystem_Round_Mode NumberSystem::getRoundMode()
  {
    return currentRoundMode;
  }

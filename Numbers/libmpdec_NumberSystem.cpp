@@ -47,6 +47,7 @@ private:
    size_t precision;
 
 public:
+   libdec_NumberHolder() = delete;
    libdec_NumberHolder(mpd_t* src, size_t precision) : precision(precision)
     {
       value = mpd_qncopy(src);

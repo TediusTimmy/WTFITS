@@ -1037,20 +1037,20 @@ dm_double dm_double_fma(dm_double lhs, dm_double rhs, dm_double ths)
             resultSign = !resultSign;
           }
        }
-      resultSignificand = phd; // This cannot possibly be zero.
+      // resultSignificand = phd; // This cannot possibly be zero.
 
          // Normalize the result
       uint64_t scal = 10U;
-      uint64_t test = BIAS * 10U;
-      if (phd < test) // Did destructive cancellation occur? ie 100 - 1.
+      uint64_t testn = BIAS * 10U;
+      if (phd < testn) // Did destructive cancellation occur? ie 100 - 1.
        {
          --resultExponent;
        }
       else
        {
          scal *= 10U;
-         test *= 10U;
-         if (phd >= test) // Did overflow occur? ie 9 + 1
+         testn *= 10U;
+         if (phd >= testn) // Did overflow occur? ie 9 + 1
           {
             ++resultExponent;
             scal *= 10U;

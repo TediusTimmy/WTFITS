@@ -57,7 +57,7 @@ class MemoryWidthGS final : public WidthGetterSetter
 private:
    std::vector<int> map;
 public:
-   MemoryWidthGS(int defWidth) : WidthGetterSetter(defWidth) { }
+   explicit MemoryWidthGS(int defWidth) : WidthGetterSetter(defWidth) { }
 
    virtual int getWidth(size_t col) override;
    virtual void setWidth(size_t col, int width) override;

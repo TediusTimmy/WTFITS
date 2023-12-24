@@ -44,7 +44,7 @@ private:
    double value;
 
 public:
-   double_NumberHolder() { }
+   double_NumberHolder() = delete;
    explicit double_NumberHolder(double src) : value(src) { }
    ~double_NumberHolder() { }
 

@@ -70,7 +70,6 @@ int main (int argc, char ** argv)
 
    std::list<std::string> batches;
    std::vector<std::pair<std::string, std::string> > argLibs;
-   std::vector<std::pair<std::string, std::string> > fileLibs;
 
    int file = 1;
 
@@ -142,8 +141,11 @@ int main (int argc, char ** argv)
          fileName = argv[file];
          ++file;
        }
-      LoadFile(fileName, manager, fileLibs, argLibs);
-      LoadLibraries(fileLibs, context);
+       {
+         std::vector<std::pair<std::string, std::string> > fileLibs;
+         LoadFile(fileName, manager, fileLibs, argLibs);
+         LoadLibraries(fileLibs, context);
+       }
 
       if (file < argc)
        {

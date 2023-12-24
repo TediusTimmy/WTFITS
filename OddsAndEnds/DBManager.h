@@ -55,8 +55,8 @@ public:
    Forwards::Engine::CallingContext* context;
    std::unique_ptr<DBManagerImpl> impl;
 
-   std::string getSheetName();
-   bool isSheetEdible();
+   std::string getSheetName() const;
+   bool isSheetEdible() const;
    bool changeTo(const std::string& sheetName);
 
    Forwards::Engine::SpreadSheetHolder* getWorkingSpreadSheet();

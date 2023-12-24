@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class DBManagerImpl
  {
 public:
-   DBManagerImpl() { }
+   DBManagerImpl() : workingSpreadSheet(nullptr), workingGS(nullptr) { }
    ~DBManagerImpl()
     {
       for (auto db : dbs)
@@ -64,21 +64,20 @@ public:
  };
 
 
-DBManager::DBManager()
+DBManager::DBManager() : context(nullptr), impl(std::make_unique<DBManagerImpl>())
  {
-   impl = std::make_unique<DBManagerImpl>();
  }
 
 DBManager::~DBManager()
  {
  }
 
-std::string DBManager::getSheetName()
+std::string DBManager::getSheetName() const
  {
    return impl->sheetName;
  }
 
-bool DBManager::isSheetEdible()
+bool DBManager::isSheetEdible() const
  {
    return true == impl->sheetName.empty();
  }

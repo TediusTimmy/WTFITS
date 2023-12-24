@@ -43,7 +43,7 @@ private:
    dm_double value;
 
 public:
-   libdecmath_NumberHolder() { }
+   libdecmath_NumberHolder()= delete;
    explicit libdecmath_NumberHolder(dm_double src) : value(src) { }
    ~libdecmath_NumberHolder() { }
 

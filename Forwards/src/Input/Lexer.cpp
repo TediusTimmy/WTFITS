@@ -102,11 +102,9 @@ namespace Input
             consume();
           }
 
-         std::string number;
          while (std::isdigit(input.peek()))
           {
             text += static_cast<char>(input.peek());
-            number += static_cast<char>(input.peek());
             ++nums;
             consume();
           }

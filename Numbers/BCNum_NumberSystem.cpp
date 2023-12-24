@@ -42,7 +42,7 @@ private:
    BigInt::Fixed value;
 
 public:
-   BCNum_NumberHolder() { }
+   BCNum_NumberHolder() = delete;
    explicit BCNum_NumberHolder(const BigInt::Fixed& src) : value(src) { }
    ~BCNum_NumberHolder() { }
 

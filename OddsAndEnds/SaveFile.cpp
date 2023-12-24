@@ -292,6 +292,7 @@ void LoadFile(const std::string& fileName, DBManager& manager, std::vector<std::
 
    std::unique_ptr<DBSpreadSheet> sheet = std::make_unique<DBSpreadSheet>(reinterpret_cast<void*>(handel), reinterpret_cast<void*>(ohandel), &manager);
    std::unique_ptr<DBWidthGS> getterSetter = std::make_unique<DBWidthGS>(DEF_COLUMN_WIDTH, reinterpret_cast<void*>(handel));
+   getterSetter->precache();
    manager.attachDB(reinterpret_cast<void*>(handel));
    manager.attachDB(reinterpret_cast<void*>(ohandel));
    manager.attach("", std::move(sheet), std::move(getterSetter));

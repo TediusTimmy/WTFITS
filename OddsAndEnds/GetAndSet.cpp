@@ -33,7 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <set>
 #include <limits>
-using std::size_t;
+#include <numeric>
+#include <algorithm>
 
 #include "GetAndSet.h"
 
@@ -117,20 +118,10 @@ int DBWidthGS::getWidth(size_t col)
 
    if (cache.size() > MAX_CACHE)
     {
-      size_t min = std::numeric_limits<size_t>::max();
-      for (auto pair : lru)
-       {
-         min = std::min(min, pair.second);
-       }
-      for (auto pair : lru)
-       {
-         if (pair.second == min)
-          {
-            cache.erase(pair.first);
-            lru.erase(pair.first);
-            break;
-          }
-       }
+      size_t min = std::accumulate(lru.begin(), lru.end(), std::numeric_limits<size_t>::max(), [](size_t x, auto y){ return std::min(x, y.second);});
+      auto iter = std::find_if(lru.begin(), lru.end(), [=](auto x){ return min == x.second; });
+      cache.erase(iter->first);
+      lru.erase(iter->first);
     }
 
    return width;

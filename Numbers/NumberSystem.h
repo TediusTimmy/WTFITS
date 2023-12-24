@@ -81,7 +81,7 @@ public:
 
    virtual std::shared_ptr<NumberHolder> fromInt(size_t) const = 0;
 
-   NumberSystem_Round_Mode getRoundMode() const;
+   static NumberSystem_Round_Mode getRoundMode();
    virtual void setRoundMode(NumberSystem_Round_Mode) = 0;
 
    virtual size_t getDefaultPrecision() const = 0;
