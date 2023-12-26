@@ -81,7 +81,7 @@ size_t TableView::getMaxRow()
     }
 
    sqlite3_stmt *messi;
-   std::string query = "SELECT COUNT(*) FROM " + sheetName + ";";
+   std::string query = "SELECT COUNT(*) FROM \"" + sheetName + "\";";
    int errorCode = sqlite3_prepare_v2(reinterpret_cast<sqlite3*>(db), query.c_str(), query.length() + 1U, &messi, nullptr);
 
    if (SQLITE_OK != errorCode)
@@ -151,7 +151,7 @@ Forwards::Engine::Cell* TableView::getCellAt(size_t col, size_t row, const std::
 
    sqlite3_stmt *messi;
 
-   std::string query1 = "SELECT * FROM " + sheetName + " LIMIT 1 OFFSET :off ;";
+   std::string query1 = "SELECT * FROM \"" + sheetName + "\" LIMIT 1 OFFSET :off ;";
    static const std::string query2 = "SELECT name FROM pragma_table_info(:sheet) LIMIT 1 OFFSET :off ;";
    int errorCode;
    if (0U != row)
