@@ -120,6 +120,21 @@ std::string setComma(const std::string& str, bool useComma)
    return result;
  }
 
+std::string getStringPreviousValue(Forwards::Engine::Cell* curCell, SharedData& data)
+ {
+   std::string content = curCell->previousValue->toString(data.c_col, data.c_row, false);
+   if (Forwards::Engine::VALUE == curCell->type) content = setComma(content, data.useComma);
+   return content;
+ }
+
+std::string getStringDisplayValue(Forwards::Engine::Cell* curCell, SharedData& data)
+ {
+   std::string content ("ERROR");
+   if (Forwards::Engine::VALUE == curCell->type) content = setComma(curCell->value->toString(data.c_col, data.c_row), data.useComma);
+   else if (Forwards::Engine::LABEL == curCell->type) content = curCell->value->evaluate(*data.context)->toString(data.c_col, data.c_row, false);
+   return content;
+ }
+
 void InitScreen(void)
  {
    initscr();
@@ -175,8 +190,7 @@ void UpdateScreen(SharedData& data)
 
          if (nullptr != curCell->previousValue)
           {
-            std::string content = curCell->previousValue->toString(data.c_col, data.c_row, false);
-            if (Forwards::Engine::VALUE == curCell->type) content = setComma(content, data.useComma);
+            std::string content = getStringPreviousValue(curCell, data);
             if (content.size() > static_cast<size_t>(x - 26)) content.resize(x - 26);
             printw("%s", content.c_str());
             for (int i = (x - 25 - content.size()); i > 0; --i) addch(' ');
@@ -233,9 +247,7 @@ void UpdateScreen(SharedData& data)
             // finished VALUE or LABEL
          else if (nullptr != curCell->value)
           {
-            std::string content ("ERROR");
-            if (Forwards::Engine::VALUE == curCell->type) content = setComma(curCell->value->toString(data.c_col, data.c_row), data.useComma);
-            else if (Forwards::Engine::LABEL == curCell->type) content = curCell->value->evaluate(*data.context)->toString(data.c_col, data.c_row, false);
+            std::string content = getStringDisplayValue(curCell, data);
             if (content.size() > static_cast<size_t>(x - 1)) content.resize(x - 1);
             printw("%s", content.c_str());
             for (int i = (x - content.size()); i > 0; --i) addch(' ');
@@ -276,9 +288,7 @@ void UpdateScreen(SharedData& data)
           {
             if (nullptr != curCell->value.get())
              {
-               std::string content ("ERROR");
-               if (Forwards::Engine::VALUE == curCell->type) content = setComma(curCell->value->toString(data.c_col, data.c_row), data.useComma);
-               else if (Forwards::Engine::LABEL == curCell->type) content = curCell->value->evaluate(*data.context)->toString(data.c_col, data.c_row, false);
+               std::string content = getStringDisplayValue(curCell, data);
                if (content.size() > static_cast<size_t>(x - 1)) content.resize(x - 1);
                printw("%s", content.c_str());
                for (int i = (x - content.size()); i > 0; --i) addch(' ');
@@ -386,8 +396,7 @@ void UpdateScreen(SharedData& data)
                 }
                if (nullptr != curCell->previousValue)
                 {
-                  std::string content = curCell->previousValue->toString(data.c_col, data.c_row, false);
-                  if (Forwards::Engine::VALUE == curCell->type) content = setComma(content, data.useComma);
+                  std::string content = getStringPreviousValue(curCell, data);
                   if (content.size() > static_cast<size_t>(nextWidth))
                    {
                      if (Forwards::Types::FLOAT == curCell->previousValue->getType()) // Make numbers note that they are truncated.
@@ -929,7 +938,7 @@ int ProcessInput(SharedData& data)
        {
          if (("" == curCell->currentInput) && (nullptr != curCell->value.get()))
           {
-            curCell->currentInput = curCell->value->toString(data.c_col, data.c_row);
+            curCell->currentInput = getStringDisplayValue(curCell, data);
             curCell->value.reset();
           }
 
@@ -992,7 +1001,7 @@ int ProcessInput(SharedData& data)
        {
          if (("" == curCell->currentInput) && (nullptr != curCell->value.get()))
           {
-            curCell->currentInput = curCell->value->toString(data.c_col, data.c_row);
+            curCell->currentInput = getStringDisplayValue(curCell, data);
             curCell->value.reset();
           }
 
@@ -1087,8 +1096,7 @@ int ProcessInput(SharedData& data)
           {
             if (("" == curCell->currentInput) && (nullptr != curCell->value.get()) && (nullptr != curCell->previousValue.get()))
              {
-               curCell->currentInput = curCell->previousValue->toString(data.c_col, data.c_row, false);
-               if (Forwards::Engine::VALUE == curCell->type) curCell->currentInput = setComma(curCell->currentInput, data.useComma);
+               curCell->currentInput = getStringPreviousValue(curCell, data);
                curCell->value.reset();
                data.context->theSheet->commitCell(curCell);
              }
