@@ -132,7 +132,7 @@ static Forwards::Engine::Cell* makeCellNumber(const char* text, size_t col, size
 
 Forwards::Engine::Cell* TableView::getCellAt(size_t col, size_t row, const std::string&)
  {
-   if (col >= (getMaxColumn() - 1U))
+   if (col >= getMaxColumn())
     {
       return nullptr;
     }
