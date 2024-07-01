@@ -31,6 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <ncurses.h>
 
+#include <chrono>
+#include <thread>
+
 #include "Forwards/Engine/CallingContext.h"
 #include "Forwards/Engine/Cell.h"
 #include "Forwards/Engine/SpreadSheet.h"
@@ -46,6 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "GetAndSet.h"
 #include "Screen.h"
 
+const int NO_INPUT_SLEEP_MILLIS = 10; // 100 Hz (when no input; always AFAP when processing input)
+
 const size_t MAX_ROW = 999999999999ULL;
 const size_t MAX_COL = 475253U;
 
@@ -59,23 +64,23 @@ void GetRC(const std::string& from, int64_t& col, int64_t& row)
       col = -1;
       return;
     }
-   col = *iter - 'A';
+   col = (*iter & ~' ') - 'A';
    ++iter;
    if (std::isalpha(*iter))
     {
-      col = (col * 26) + (*iter - 'A');
+      col = (col * 26) + ((*iter & ~' ') - 'A');
       ++iter;
       ++alphas;
     }
    if (std::isalpha(*iter))
     {
-      col = (col * 26) + (*iter - 'A');
+      col = (col * 26) + ((*iter & ~' ') - 'A');
       ++iter;
       ++alphas;
     }
    if (std::isalpha(*iter))
     {
-      col = (col * 26) + (*iter - 'A');
+      col = (col * 26) + ((*iter & ~' ') - 'A');
       ++iter;
       ++alphas;
     }
@@ -144,6 +149,7 @@ void InitScreen(void)
    keypad(stdscr, TRUE);
    noecho();
    nonl();
+   nodelay(stdscr, TRUE);
 
    init_pair(1, COLOR_WHITE, COLOR_BLUE);
    init_pair(2, COLOR_BLACK, COLOR_WHITE);
@@ -227,11 +233,12 @@ void UpdateScreen(SharedData& data)
       Forwards::Engine::Cell* curCell = chello.cell;
       if (nullptr != curCell)
        {
-            // unfinished VALUE
+            // unfinished VALUE : parse current contents
          if ((Forwards::Engine::VALUE == curCell->type) && (nullptr == curCell->value))
           {
             data.context->inUserInput = true;
             --data.context->generation;
+            if (false == data.tempString.empty()) curCell->currentInput = data.tempString;
             std::shared_ptr<Forwards::Types::ValueType> result;
             std::string content = data.context->theSheet->computeCell(*data.context, result, data.c_col, data.c_row);
             ++data.context->generation;
@@ -252,10 +259,10 @@ void UpdateScreen(SharedData& data)
             printw("%s", content.c_str());
             for (int i = (x - content.size()); i > 0; --i) addch(' ');
           }
-            // unfinished LABEL
+            // unfinished LABEL : show prior contents
          else
           {
-            std::string content = curCell->currentInput;
+            std::string content = data.origString;
             if (content.size() > static_cast<size_t>(x - 1)) content.resize(x - 1);
             printw("%s", content.c_str());
             for (int i = (x - content.size()); i > 0; --i) addch(' ');
@@ -271,42 +278,39 @@ void UpdateScreen(SharedData& data)
       attron(COLOR_PAIR(1));
       Forwards::Engine::AutoCell chello (data.context->theSheet, data.context->theSheet->getCellAt(data.c_col, data.c_row, data.manager->getSheetName()));
       Forwards::Engine::Cell* curCell = chello.cell;
-      if (nullptr != curCell)
+      if (true == data.inputMode)
        {
-         if (true == data.inputMode)
+         std::string content = data.tempString.substr(data.baseChar, std::string::npos);
+         if (content.size() > static_cast<size_t>(x))
           {
-            std::string content = curCell->currentInput.substr(data.baseChar, std::string::npos);
-            if (content.size() > static_cast<size_t>(x))
+            content.resize(x);
+          }
+         mx = data.editChar - data.baseChar;
+         printw("%s", content.c_str());
+         for (int i = (x - content.size()); i > 0; --i) addch(' ');
+       }
+      else if (nullptr != curCell)
+       {
+         if (nullptr != curCell->value.get())
+          {
+            std::string content = getStringDisplayValue(curCell, data);
+            if (content.size() > static_cast<size_t>(x - 1)) content.resize(x - 1);
+            printw("%s", content.c_str());
+            for (int i = (x - content.size()); i > 0; --i) addch(' ');
+          }
+         else if ("" != curCell->currentInput)
+          {
+            std::string content = curCell->currentInput;
+            if (content.size() > static_cast<size_t>(x - 5))
              {
-               content.resize(x);
+               content = content.substr(content.size() - x + 5, std::string::npos);
              }
-            mx = data.editChar - data.baseChar;
             printw("%s", content.c_str());
             for (int i = (x - content.size()); i > 0; --i) addch(' ');
           }
          else
           {
-            if (nullptr != curCell->value.get())
-             {
-               std::string content = getStringDisplayValue(curCell, data);
-               if (content.size() > static_cast<size_t>(x - 1)) content.resize(x - 1);
-               printw("%s", content.c_str());
-               for (int i = (x - content.size()); i > 0; --i) addch(' ');
-             }
-            else if ("" != curCell->currentInput)
-             {
-               std::string content = curCell->currentInput;
-               if (content.size() > static_cast<size_t>(x - 5))
-                {
-                  content = content.substr(content.size() - x + 5, std::string::npos);
-                }
-               printw("%s", content.c_str());
-               for (int i = (x - content.size()); i > 0; --i) addch(' ');
-             }
-            else
-             {
-               for (int i = 0; i < x; ++i) addch(' ');
-             }
+            for (int i = 0; i < x; ++i) addch(' ');
           }
        }
       else
@@ -507,10 +511,49 @@ size_t CountColumnsLeft(const SharedData& data, size_t fromHere, int x)
    return tc;
  }
 
+void doMove(SharedData& data)
+ {
+   int x, y;
+   getmaxyx(stdscr, y, x); // CODING HORROR!!!
+   int64_t row, col;
+   GetRC(data.tempString, col, row);
+   if ((-1 == col) || (-1 == row))
+      return;
+   size_t cl = CountColumnsLeft(data, MAX_COL, x);
+   data.c_col = col;
+   data.tr_col = col;
+   data.c_row = row;
+   data.tr_row = row;
+   if (((MAX_COL - cl) < static_cast<size_t>(col)) && (static_cast<size_t>(col) <= MAX_COL)) data.tr_col = MAX_COL - cl + 1;
+   if ((data.tr_row + y - 5) > MAX_ROW) data.tr_row = MAX_ROW - y + 6;
+ }
+
+void doChange(SharedData& data)
+ {
+   if (true == data.manager->changeTo(data.tempString))
+    {
+      data.c_col = 0U;
+      data.tr_col = 0U;
+      data.c_row = 0U;
+      data.tr_row = 0U;
+    }
+ }
+
+bool updateChOrFail(int& c, SharedData& data)
+ {
+   if (false == data.inputBuffer.empty())
+    {
+      c = data.inputBuffer.front();
+      data.inputBuffer.pop_front();
+      return true;
+    }
+   data.inputBuffer.push_front(c);
+   return false;
+ }
+
 int ProcessInput(SharedData& data)
  {
    int returnValue = 1;
-   int c = getch();
    int x, y;
    getmaxyx(stdscr, y, x); // CODING HORROR!!!
 
@@ -518,24 +561,43 @@ int ProcessInput(SharedData& data)
    Forwards::Engine::AutoCell chello (data.context->theSheet, data.context->theSheet->getCellAt(data.c_col, data.c_row, data.manager->getSheetName()));
    Forwards::Engine::Cell* curCell = chello.cell;
 
+   int c = getch();
+   while (ERR != c)
+    {
+      data.inputBuffer.push_back(c);
+      c = getch();
+    }
+   if (false == data.inputBuffer.empty())
+    {
+      c = data.inputBuffer.front();
+      data.inputBuffer.pop_front();
+    }
+
+   if (ERR == c)
+    {
+      std::chrono::system_clock::time_point last;
+      last = std::chrono::system_clock::now() + std::chrono::milliseconds(NO_INPUT_SLEEP_MILLIS);
+      std::this_thread::sleep_until(last);
+    }
+
    if (true == data.inputMode)
     {
       bool done = true;
       if ((c >= ' ') && (c <= '~'))
        {
-         if (data.editChar == curCell->currentInput.size())
+         if (data.editChar == data.tempString.size())
           {
-            curCell->currentInput += c;
+            data.tempString += c;
           }
          else
           {
             if (true == data.insertMode)
              {
-               curCell->currentInput = curCell->currentInput.substr(0U, data.editChar) + static_cast<char>(c) + curCell->currentInput.substr(data.editChar, std::string::npos);
+               data.tempString = data.tempString.substr(0U, data.editChar) + static_cast<char>(c) + data.tempString.substr(data.editChar, std::string::npos);
              }
             else
              {
-               curCell->currentInput[data.editChar] = c;
+               data.tempString[data.editChar] = c;
              }
           }
          ++data.editChar;
@@ -545,7 +607,7 @@ int ProcessInput(SharedData& data)
             ++data.baseChar;
           }
 
-         if (Forwards::Engine::VALUE == curCell->type)
+         if ((nullptr != curCell) && (Forwards::Engine::VALUE == curCell->type))
           {
             if ('.' == c) data.useComma = false;
             if (',' == c) data.useComma = true;
@@ -553,26 +615,26 @@ int ProcessInput(SharedData& data)
        }
       else if ((c == KEY_BACKSPACE) || (c == '\b') || (c == 0177))
        {
-         if (("" != curCell->currentInput) && (0U != data.editChar))
+         if (("" != data.tempString) && (0U != data.editChar))
           {
-            if (data.editChar == curCell->currentInput.size())
+            if (data.editChar == data.tempString.size())
              {
-               if (curCell->currentInput.size() > 1U)
+               if (data.tempString.size() > 1U)
                 {
-                  curCell->currentInput = curCell->currentInput.substr(0U, curCell->currentInput.size() - 1U);
+                  data.tempString = data.tempString.substr(0U, data.tempString.size() - 1U);
                 }
                else
                 {
-                  curCell->currentInput = "";
+                  data.tempString = "";
                 }
              }
             else
              {
-               curCell->currentInput = curCell->currentInput.substr(0U, data.editChar - 1U) + curCell->currentInput.substr(data.editChar, std::string::npos);
+               data.tempString = data.tempString.substr(0U, data.editChar - 1U) + data.tempString.substr(data.editChar, std::string::npos);
              }
             --data.editChar;
 
-            if ((data.editChar + data.baseChar) > curCell->currentInput.size())
+            if ((data.editChar + data.baseChar) > data.tempString.size())
              {
                --data.baseChar;
              }
@@ -580,20 +642,20 @@ int ProcessInput(SharedData& data)
        }
       else if (c == KEY_DC)
        {
-         if ("" != curCell->currentInput)
+         if ("" != data.tempString)
           {
-            if (data.editChar != curCell->currentInput.size())
+            if (data.editChar != data.tempString.size())
              {
-               if (curCell->currentInput.size() > 1U)
+               if (data.tempString.size() > 1U)
                 {
-                  curCell->currentInput = curCell->currentInput.substr(0U, data.editChar) + curCell->currentInput.substr(data.editChar + 1U, std::string::npos);
+                  data.tempString = data.tempString.substr(0U, data.editChar) + data.tempString.substr(data.editChar + 1U, std::string::npos);
                 }
                else
                 {
-                  curCell->currentInput = "";
+                  data.tempString = "";
                 }
 
-               if ((data.editChar + data.baseChar) > curCell->currentInput.size())
+               if ((data.editChar + data.baseChar) > data.tempString.size())
                 {
                   --data.baseChar;
                 }
@@ -614,7 +676,7 @@ int ProcessInput(SharedData& data)
        }
       else if (c == KEY_RIGHT)
        {
-         if (data.editChar != curCell->currentInput.size())
+         if (data.editChar != data.tempString.size())
           {
             ++data.editChar;
 
@@ -643,7 +705,7 @@ int ProcessInput(SharedData& data)
        }
       else if (c == KEY_END)
        {
-         data.editChar = curCell->currentInput.size();
+         data.editChar = data.tempString.size();
          if (data.editChar > (x - 5U))
           {
             data.baseChar = data.editChar - x + 5U;
@@ -656,30 +718,56 @@ int ProcessInput(SharedData& data)
       else if ((c == '\n') || (c == '\r') || (c == KEY_ENTER))
        {
          data.inputMode = false;
-         data.context->theSheet->commitCell(curCell);
-         curCell->previousValue.reset();
-         data.context->theSheet->recalc(*data.context);
+         if (CELL_MODIFICATION == data.mode)
+          {
+            curCell->currentInput = data.tempString;
+            curCell->value.reset();
+            curCell->previousValue.reset();
+            data.context->theSheet->commitCell(curCell);
+            data.context->theSheet->recalc(*data.context);
+          }
+         else if (GOTO_CELL == data.mode)
+          {
+            doMove(data);
+          }
+         else if (GOTO_SHEET == data.mode)
+          {
+            doChange(data);
+          }
+         data.tempString = "";
+         data.origString = "";
        }
       else if ((KEY_DOWN == c) || (KEY_UP == c) || (KEY_NPAGE == c) || (KEY_PPAGE == c))
        {
-         data.inputMode = false;
-         data.context->theSheet->commitCell(curCell);
-         data.context->theSheet->recalc(*data.context);
-         done = false;
-         if (KEY_NPAGE == c)
+         if (CELL_MODIFICATION == data.mode)
           {
-            c = KEY_RIGHT;
-          }
-         else if (KEY_PPAGE == c)
-          {
-            c = KEY_LEFT;
+            data.inputMode = false;
+            curCell->currentInput = data.tempString;
+            data.tempString = "";
+            data.origString = "";
+            data.context->theSheet->commitCell(curCell);
+            data.context->theSheet->recalc(*data.context);
+            done = false;
+            if (KEY_NPAGE == c)
+             {
+               c = KEY_RIGHT;
+             }
+            else if (KEY_PPAGE == c)
+             {
+               c = KEY_LEFT;
+             }
           }
        }
       else if (27 == c) // ESCape Key
        {
          data.inputMode = false;
-         data.context->theSheet->dispose(curCell);
-         curCell->previousValue.reset();
+         if (nullptr != curCell)
+          {
+            data.context->theSheet->dispose(curCell);
+            curCell->previousValue.reset();
+          }
+         data.tempString = "";
+         data.origString = "";
        }
 
       if (true == done)
@@ -691,45 +779,20 @@ int ProcessInput(SharedData& data)
    switch (c)
     {
    case 'g':
-    {
-      int64_t row, col;
-      std::string temp;
-      int ch = getch();
-      while (('\n' != ch) && ('\r' != ch) && (KEY_ENTER != ch))
-       {
-         if ((ch >= 'a') && (ch <= 'z')) ch &= ~' ';
-         temp += ch;
-         ch = getch();
-       }
-      GetRC(temp, col, row);
-      if ((-1 == col) || (-1 == row))
-         break;
-      size_t cl = CountColumnsLeft(data, MAX_COL, x);
-      data.c_col = col;
-      data.tr_col = col;
-      data.c_row = row;
-      data.tr_row = row;
-      if (((MAX_COL - cl) < static_cast<size_t>(col)) && (static_cast<size_t>(col) <= MAX_COL)) data.tr_col = MAX_COL - cl + 1;
-      if ((data.tr_row + y - 5) > MAX_ROW) data.tr_row = MAX_ROW - y + 6;
-    }
+      data.inputMode = true;
+      data.tempString = "";
+      data.mode = GOTO_CELL;
+
+      data.baseChar = 0U;
+      data.editChar = 0U;
       break;
    case 'G':
-    {
-      std::string temp;
-      int ch = getch();
-      while (('\n' != ch) && ('\r' != ch) && (KEY_ENTER != ch))
-       {
-         temp += ch;
-         ch = getch();
-       }
-      if (true == data.manager->changeTo(temp))
-       {
-         data.c_col = 0U;
-         data.tr_col = 0U;
-         data.c_row = 0U;
-         data.tr_row = 0U;
-       }
-    }
+      data.inputMode = true;
+      data.tempString = "";
+      data.mode = GOTO_SHEET;
+
+      data.baseChar = 0U;
+      data.editChar = 0U;
       break;
    case 'j':
    case KEY_DOWN:
@@ -842,11 +905,18 @@ int ProcessInput(SharedData& data)
          chello.cell = data.context->theSheet->getCellAt(data.c_col, data.c_row, data.manager->getSheetName());
          curCell = chello.cell;
        }
+      if (("" == curCell->currentInput) && (nullptr != curCell->value.get()))
+       {
+         curCell->currentInput = getStringDisplayValue(curCell, data);
+       }
+      data.origString = curCell->currentInput;
       curCell->type = Forwards::Engine::LABEL;
       curCell->currentInput = "";
       curCell->value.reset();
       data.context->theSheet->makeEvergreen(curCell);
       data.inputMode = true;
+      data.tempString = "";
+      data.mode = CELL_MODIFICATION;
       data.baseChar = 0U;
       data.editChar = 0U;
     }
@@ -863,11 +933,18 @@ int ProcessInput(SharedData& data)
          chello.cell = data.context->theSheet->getCellAt(data.c_col, data.c_row, data.manager->getSheetName());
          curCell = chello.cell;
        }
+      if (("" == curCell->currentInput) && (nullptr != curCell->value.get()))
+       {
+         curCell->currentInput = getStringDisplayValue(curCell, data);
+       }
+      data.origString = curCell->currentInput;
       curCell->type = Forwards::Engine::VALUE;
       curCell->currentInput = "";
       curCell->value.reset();
       data.context->theSheet->makeEvergreen(curCell);
       data.inputMode = true;
+      data.tempString = "";
+      data.mode = CELL_MODIFICATION;
       data.baseChar = 0U;
       data.editChar = 0U;
     }
@@ -884,7 +961,7 @@ int ProcessInput(SharedData& data)
        {
          break;
        }
-      c = getch();
+      if (false == updateChOrFail(c, data)) break;
       switch (c)
        {
       case 'd':
@@ -900,7 +977,8 @@ int ProcessInput(SharedData& data)
       data.context->theSheet->recalc(*data.context);
       break;
    case 'y':
-      if ('y' == getch())
+      if (false == updateChOrFail(c, data)) break;
+      if ('y' == c)
        {
          if ((nullptr != curCell) && (nullptr != curCell->value.get()))
           {
@@ -914,7 +992,8 @@ int ProcessInput(SharedData& data)
        {
          break;
        }
-      if ('p' == getch())
+      if (false == updateChOrFail(c, data)) break;
+      if ('p' == c)
        {
          if (nullptr == curCell)
           {
@@ -941,6 +1020,7 @@ int ProcessInput(SharedData& data)
             curCell->currentInput = getStringDisplayValue(curCell, data);
             curCell->value.reset();
           }
+         data.origString = curCell->currentInput;
 
          data.editChar = curCell->currentInput.size();
          if (data.editChar > (x - 5U))
@@ -954,6 +1034,8 @@ int ProcessInput(SharedData& data)
 
          data.context->theSheet->makeEvergreen(curCell);
          data.inputMode = true;
+         data.tempString = curCell->currentInput;
+         data.mode = CELL_MODIFICATION;
        }
     }
       break;
@@ -994,6 +1076,8 @@ int ProcessInput(SharedData& data)
          curCell = chello.cell;
          curCell->type = Forwards::Engine::VALUE;
 
+         data.origString = "";
+
          data.baseChar = 0U;
          data.editChar = 0U;
        }
@@ -1004,6 +1088,7 @@ int ProcessInput(SharedData& data)
             curCell->currentInput = getStringDisplayValue(curCell, data);
             curCell->value.reset();
           }
+         data.origString = curCell->currentInput;
 
          if (Forwards::Engine::VALUE == curCell->type)
           {
@@ -1022,10 +1107,12 @@ int ProcessInput(SharedData& data)
        }
       data.context->theSheet->makeEvergreen(curCell);
       data.inputMode = true;
+      data.tempString = curCell->currentInput;
+      data.mode = CELL_MODIFICATION;
     }
       break;
    case ':':
-      c = getch();
+      if (false == updateChOrFail(c, data)) break;
       switch (c)
        {
       case ')':
@@ -1090,7 +1177,8 @@ int ProcessInput(SharedData& data)
        {
          break;
        }
-      if ('v' == getch())
+      if (false == updateChOrFail(c, data)) break;
+      if ('v' == c)
        {
          if (nullptr != curCell)
           {
@@ -1102,6 +1190,9 @@ int ProcessInput(SharedData& data)
              }
           }
        }
+      break;
+   case '`':
+      endwin();
       break;
     }
 

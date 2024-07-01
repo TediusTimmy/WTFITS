@@ -32,6 +32,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef SCREEN_H
 #define SCREEN_H
 
+enum MODE
+ {
+   CELL_MODIFICATION,
+   GOTO_CELL,
+   GOTO_SHEET
+ };
+
 class SharedData final
  {
 public:
@@ -47,6 +54,12 @@ public:
    bool useComma;
 
    DBManager* manager;
+
+   std::string tempString;
+   std::string origString;
+   MODE mode;
+
+   std::deque<int> inputBuffer;
 
    Forwards::Engine::CellType yankedType;
    std::shared_ptr<Forwards::Engine::Expression> yanked;
