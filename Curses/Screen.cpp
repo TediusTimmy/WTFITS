@@ -990,6 +990,11 @@ int ProcessInput(SharedData& data)
             data.yanked = curCell->value;
           }
        }
+      else if ('d' == c)
+       {
+         data.yankedType = Forwards::Engine::ERROR;
+         data.yanked.reset();
+       }
       break;
    case 'p':
       if (false == data.manager->isSheetEdible())
@@ -999,6 +1004,7 @@ int ProcessInput(SharedData& data)
       if (false == updateChOrFail(c, data)) break;
       if ('p' == c)
        {
+         if (Forwards::Engine::ERROR == data.yankedType) break;
          if (nullptr == curCell)
           {
             data.context->theSheet->initCellAt(data.c_col, data.c_row);
