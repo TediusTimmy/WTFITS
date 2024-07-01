@@ -564,6 +564,10 @@ int ProcessInput(SharedData& data)
    int c = getch();
    while (ERR != c)
     {
+      if (27 == c)
+       {
+         data.inputBuffer.clear();
+       }
       data.inputBuffer.push_back(c);
       c = getch();
     }
