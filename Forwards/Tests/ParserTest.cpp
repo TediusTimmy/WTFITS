@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Forwards/Input/Lexer.h"
 #include "Forwards/Parser/Parser.h"
 
+#include "NumberSystem.h"
+
 class StringLogger final : public Backwards::Engine::Logger
  {
 public:
@@ -51,6 +53,7 @@ public:
 
 TEST(ParserTests, testICanParseParse)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "12+13";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -79,7 +82,37 @@ TEST(ParserTests, testICanParseParse)
 
 TEST(ParserTests, testSomeMoreParse)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "12*7+13/15-(12--5)";
+   Backwards::Input::StringInput string (line);
+   Forwards::Input::Lexer lexer (string);
+
+   Forwards::Engine::CallingContext context;
+   Backwards::Engine::Scope global;
+   StringLogger logger;
+
+   context.logger = &logger;
+   context.debugger = nullptr;
+   context.globalScope = &global;
+
+   Forwards::Engine::GetterMap map;
+
+   std::shared_ptr<Forwards::Engine::Expression> parse = Forwards::Parser::Parser::ParseFullExpression(lexer, map, logger, 1U, 1U);
+
+   if (nullptr != parse.get())
+    {
+      EXPECT_EQ(line, parse->toString(1U, 1U));
+    }
+   else
+    {
+      FAIL() << "Parse returned NULL.";
+    }
+ }
+
+TEST(ParserTests, testBrokenCases)
+ {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
+   std::string line = "12/(3*4)+12-(3+4)";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
 
@@ -107,6 +140,7 @@ TEST(ParserTests, testSomeMoreParse)
 
 TEST(ParserTests, testAStringParse)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "\"Hello \"&\"\"\"World\"\"\"";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -135,6 +169,7 @@ TEST(ParserTests, testAStringParse)
 
 TEST(ParserTests, testSomeReferences)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "A1+B2+$A1+A$1+$A$1+A1!A";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -164,6 +199,7 @@ TEST(ParserTests, testSomeReferences)
 
 TEST(ParserTests, testSomeMoreReferences)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "AA1+BBB2+$AA1+AA$1+$AAA$1+ZZZW0";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -193,6 +229,7 @@ TEST(ParserTests, testSomeMoreReferences)
 
 TEST(ParserTests, testSomeFailure)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "A12%3";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -217,6 +254,7 @@ TEST(ParserTests, testSomeFailure)
 
 TEST(ParserTests, testRange)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "A1:B3";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -246,6 +284,7 @@ TEST(ParserTests, testRange)
 
 TEST(ParserTests, testCompares)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "(A1=B3)+(A2>B4)-(A1<>B1)+(C3<C4)-(A2>=B2)-(A2<=B2)";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -278,6 +317,7 @@ TEST(ParserTests, testCompares)
 
 TEST(ParserTests, testCat)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "A1&B3";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -306,6 +346,7 @@ TEST(ParserTests, testCat)
 
 TEST(ParserTests, testSomeMoreFailure)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "A12+";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -330,6 +371,7 @@ TEST(ParserTests, testSomeMoreFailure)
 
 TEST(ParserTests, testSomeFunctions)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "@FUN+@FUN(12;13;14)";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -359,6 +401,7 @@ TEST(ParserTests, testSomeFunctions)
 
 TEST(ParserTests, testSomeFunctions2)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "@FUN()";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -388,6 +431,7 @@ TEST(ParserTests, testSomeFunctions2)
 
 TEST(ParserTests, testSomeFunctionsBad)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "@FUNNY()";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);
@@ -413,6 +457,7 @@ TEST(ParserTests, testSomeFunctionsBad)
 
 TEST(ParserTests, testName)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::string line = "_Larry";
    Backwards::Input::StringInput string (line);
    Forwards::Input::Lexer lexer (string);

@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TEST(TypesTests, testFloats)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Types::FloatValue defaulted;
    Forwards::Types::FloatValue low (NumberSystem::getCurrentNumberSystem().fromString("1"));
    Forwards::Types::FloatValue med (NumberSystem::getCurrentNumberSystem().fromString("5"));
@@ -63,6 +64,7 @@ TEST(TypesTests, testFloats)
 
 TEST(TypesTests, testStrings)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Types::StringValue defaulted;
    Forwards::Types::StringValue low ("A");
    Forwards::Types::StringValue med ("M");
@@ -100,6 +102,7 @@ TEST(TypesTests, testStrings)
 
 TEST(TypesTests, testNil)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Types::NilValue defaulted;
    Forwards::Types::NilValue low;
    Forwards::Types::NilValue med;
@@ -119,6 +122,7 @@ TEST(TypesTests, testNil)
 
 TEST(TypesTests, testCellRef)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Types::CellRefValue defaulted;
    Forwards::Types::CellRefValue low (true, 5, false, 5, "");
    Forwards::Types::CellRefValue med (false, 6, true, 6, "");
@@ -164,6 +168,7 @@ TEST(TypesTests, testCellRef)
 
 TEST(TypesTests, testCellRange)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Types::CellRangeValue defaulted;
    Forwards::Types::CellRangeValue low (1, 1, 2, 2, "");
    Forwards::Types::CellRangeValue med (3, 5, 7, 9, "");

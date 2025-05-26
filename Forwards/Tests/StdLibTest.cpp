@@ -71,6 +71,7 @@ public:
 
 TEST(EngineTests, testStdLibHolder)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Engine::CallingContext context;
    StringLogger logger;
    context.logger = &logger;

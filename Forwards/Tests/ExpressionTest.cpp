@@ -84,6 +84,7 @@ static std::shared_ptr<Forwards::Types::FloatValue> makeFloatValue (const char *
 
 TEST(EngineTests, testFloats)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> one = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), makeFloatValue("6"));
    std::shared_ptr<Forwards::Engine::Constant> two = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), makeFloatValue("9"));
    std::shared_ptr<Forwards::Engine::Constant> six = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), makeFloatValue("0"));
@@ -545,6 +546,7 @@ TEST(EngineTests, testFloats)
 
 TEST(EngineTests, testStrings)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> one = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::StringValue>("F"));
    std::shared_ptr<Forwards::Engine::Constant> two = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::StringValue>("U"));
    std::shared_ptr<Forwards::Engine::Constant> six = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::StringValue>(""));
@@ -861,6 +863,7 @@ TEST(EngineTests, testStrings)
 
 TEST(EngineTests, testOtherNils)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> one = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::NilValue>());
    std::shared_ptr<Forwards::Engine::Constant> two = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::NilValue>());
    std::shared_ptr<Forwards::Types::ValueType> res;
@@ -1009,6 +1012,7 @@ TEST(EngineTests, testOtherNils)
 
 TEST(EngineTests, testVariousCellRanges)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> A1 = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(false, 0, false, 0, ""));
    std::shared_ptr<Forwards::Engine::Constant> A2 = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(false, 0, true, 0, ""));
    std::shared_ptr<Forwards::Engine::Constant> A3 = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(true, 0, false, 0, ""));
@@ -1117,6 +1121,7 @@ TEST(EngineTests, testVariousCellRanges)
 
 TEST(EngineTests, testParens)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> one = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), makeFloatValue("6"));
    std::shared_ptr<Forwards::Engine::Constant> two = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), makeFloatValue("9"));
 
@@ -1135,6 +1140,7 @@ TEST(EngineTests, testParens)
 
 TEST(EngineTests, testFinalConst)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
    StringLogger logger;
@@ -1247,6 +1253,7 @@ TEST(EngineTests, testFinalConst)
 
 TEST(EngineTests, testFunctionsAndRanges)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
    StringLogger logger;
@@ -1419,6 +1426,7 @@ TEST(EngineTests, testFunctionsAndRanges)
 
 TEST(EngineTests, testCellRangeExpand)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Types::CellRangeValue defaulted (std::make_shared<Forwards::Engine::CellRangeExpand>());
    Backwards::Types::CellRangeValue low (std::make_shared<Forwards::Engine::CellRangeExpand>(std::make_shared<Forwards::Types::CellRangeValue>(0U, 0U, 1U, 1U, "")));
    Backwards::Types::CellRangeValue high (std::make_shared<Forwards::Engine::CellRangeExpand>(std::make_shared<Forwards::Types::CellRangeValue>(2U, 3U, 4U, 5U, "")));
@@ -1506,6 +1514,7 @@ TEST(EngineTests, testCellRangeExpand)
 
 TEST(EngineTests, testCellRefEval)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Types::CellRefValue defaulted (std::make_shared<Forwards::Engine::CellRefEval>());
    Backwards::Types::CellRefValue low (std::make_shared<Forwards::Engine::CellRefEval>(
       std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(false, 0, false, 1, ""))));
@@ -1533,6 +1542,7 @@ TEST(EngineTests, testCellRefEval)
 
 TEST(EngineTests, testCellRefEval_EqualCases)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Types::CellRefValue un (std::make_shared<Forwards::Engine::CellRefEval>(
       std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(false, 0, false, 0, ""))));
    Backwards::Types::CellRefValue deux (std::make_shared<Forwards::Engine::CellRefEval>(
@@ -1561,6 +1571,7 @@ TEST(EngineTests, testCellRefEval_EqualCases)
 
 TEST(EngineTests, testCellRangeExpand_EqualCases)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Types::CellRangeValue un (std::make_shared<Forwards::Engine::CellRangeExpand>(std::make_shared<Forwards::Types::CellRangeValue>(0U, 0U, 1U, 1U, "")));
    Backwards::Types::CellRangeValue deux (std::make_shared<Forwards::Engine::CellRangeExpand>(std::make_shared<Forwards::Types::CellRangeValue>(1U, 0U, 1U, 1U, "")));
    Backwards::Types::CellRangeValue trois (std::make_shared<Forwards::Engine::CellRangeExpand>(std::make_shared<Forwards::Types::CellRangeValue>(0U, 1U, 1U, 1U, "")));
@@ -1583,6 +1594,7 @@ TEST(EngineTests, testCellRangeExpand_EqualCases)
 
 TEST(EngineTests, testCellEval)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Backwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
    StringLogger logger;
@@ -1616,6 +1628,7 @@ TEST(EngineTests, testCellEval)
 
 TEST(EngineTests, testName)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> one = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), makeFloatValue("6"));
    std::shared_ptr<Forwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
@@ -1642,6 +1655,7 @@ TEST(EngineTests, testName)
 
 TEST(EngineTests, testMOVE)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Engine::Constant> A1 = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(false, 0, false, 0, ""));
    std::shared_ptr<Forwards::Engine::Constant> B1 = std::make_shared<Forwards::Engine::Constant>(Forwards::Input::Token(), std::make_shared<Forwards::Types::CellRefValue>(false, 1, false, 1, ""));
 

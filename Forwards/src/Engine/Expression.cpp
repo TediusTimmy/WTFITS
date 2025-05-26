@@ -392,7 +392,7 @@ namespace Engine
 
    std::string Divide::toString(size_t col, size_t row, int level) const
     {
-      return wrapInParens(lhs->toString(col, row, 3) + "/" + rhs->toString(col, row, 3), level, 3);
+      return wrapInParens(lhs->toString(col, row, 3) + "/" + rhs->toString(col, row, -3), level, 3);
     }
 
    OperationConstructor(Cat)

@@ -62,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TEST(EngineTests, testSpreadSheet_EasyCases)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
    Forwards::Parser::StringLogger logger;
@@ -157,6 +158,7 @@ TEST(EngineTests, testSpreadSheet_EasyCases)
 
 TEST(EngineTests, testSpreadSheet_ParseCases)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
    Forwards::Parser::StringLogger logger;
@@ -198,6 +200,7 @@ TEST(EngineTests, testSpreadSheet_ParseCases)
 
 TEST(EngineTests, testSpreadSheet_ExceptionCases)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::shared_ptr<Forwards::Types::ValueType> res;
    Forwards::Engine::CallingContext context;
    Forwards::Parser::StringLogger logger;
@@ -280,6 +283,7 @@ static std::shared_ptr<Forwards::Types::FloatValue> makeFloatValue (const char* 
 
 TEST(EngineTests, testSpreadSheet_Recalc_TBLR) // A1 is evaluated first. It calls B2, which calls A1, which returns 2.
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Engine::CallingContext context;
    Forwards::Engine::SpreadSheet shet;
    context.theSheet = &shet;
@@ -313,6 +317,7 @@ TEST(EngineTests, testSpreadSheet_Recalc_TBLR) // A1 is evaluated first. It call
 
 TEST(EngineTests, testSpreadSheet_Recalc_BTRL) // B2 is evaluated first. It calls A1, which calls B2, which returns 3.
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Engine::CallingContext context;
    Forwards::Engine::SpreadSheet shet;
    context.theSheet = &shet;
@@ -349,6 +354,7 @@ TEST(EngineTests, testSpreadSheet_Recalc_BTRL) // B2 is evaluated first. It call
 
 TEST(EngineTests, testSpreadSheet_Recalc_NoHang)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    std::cerr << "WARNING: this unit test will hang on failure." << std::endl;
 
    Forwards::Engine::CallingContext context;
@@ -541,6 +547,7 @@ TEST(EngineTests, testSpreadSheet_Recalc_NoHang)
 
 TEST(EngineTests, testSpreadSheet_ClearRowColumn)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Engine::CallingContext context;
    Forwards::Engine::SpreadSheet shet;
    context.theSheet = &shet;
