@@ -19,4 +19,4 @@ cd ../Parser
 mv ./*.o ../../obj
 
 cd ../../bin
-g++ -o ParserTestConsole -Wall -Wextra -Wpedantic -O0 -g -I../include -I../../Numbers ../Tests/ParserTestFromInput.cpp ../obj/*.o ../obj/*.a -lgmp
+g++ -o ParserTestConsole -Wall -Wextra -Wpedantic -O0 -g -I../include -I../../Numbers ../Tests/ParserTestFromInput.cpp ../obj/*.o ../obj/*.a -lmpfr -lgmp

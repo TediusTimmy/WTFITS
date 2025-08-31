@@ -64,6 +64,7 @@ public:
 
 TEST(ParserTests, testICanParseParse)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Input::StringInput string
       (
       "if 7 < 5 then "
@@ -517,6 +518,17 @@ TEST(ParserTests, testLetsDoMath)
       Backwards::Input::StringInput string ( " function [3] fib (x) [z] is if x > 1 then return fib[z](x - 1) * x else return 1 end end (5) " );
       Backwards::Input::Lexer lexer (string, "InputString");
       EXPECT_EQ(120.0, parseAndEvaluateDouble(lexer, table, logger, context));
+    }
+   catch (const char * failure)
+    {
+      FAIL() << failure;
+    }
+
+   try
+    {
+      Backwards::Input::StringInput string ( " { 12; 13; 14}[{0; 1}[1]] " );
+      Backwards::Input::Lexer lexer (string, "InputString");
+      EXPECT_EQ(13.0, parseAndEvaluateDouble(lexer, table, logger, context));
     }
    catch (const char * failure)
     {

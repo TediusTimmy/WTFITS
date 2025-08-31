@@ -55,6 +55,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Backwards/Types/DictionaryValue.h"
 #include "Backwards/Types/FunctionValue.h"
 
+#include "NumberSystem.h"
+
 class ConsoleLogger final : public Backwards::Engine::Logger
  {
 public:
@@ -64,6 +66,7 @@ public:
 
 int main (void)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Input::ConsoleInput console;
    Backwards::Input::Lexer lexer (console, "Console");
 

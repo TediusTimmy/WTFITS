@@ -11,7 +11,7 @@ cd ../Engine
 mv ./*.o ../../obj
 
 cd ../../bin
-g++ -o EngineTest -Wall -Wextra -Wpedantic --coverage -O0 -I../../../External/googletest/include -I../include -I../../Numbers ../Tests/ExpressionTest.cpp ../Tests/StdLibTest.cpp ../Tests/StatementTest.cpp ../obj/*.o ../../../External/googletest/lib/libgtest.a ../../../External/googletest/lib/libgtest_main.a ../obj/*.a -lgmp
+g++ -o EngineTest -Wall -Wextra -Wpedantic --coverage -O0 -I../../../External/googletest/include -I../include -I../../Numbers ../Tests/ExpressionTest.cpp ../Tests/StdLibTest.cpp ../Tests/StatementTest.cpp ../obj/*.o ../../../External/googletest/lib/libgtest.a ../../../External/googletest/lib/libgtest_main.a ../obj/*.a -lmpfr -lgmp
 #g++ -o EngineTest -Wall -Wextra -Wpedantic --coverage -O0 -I../External/googletest/include -I../include ../Tests/StatementTest.cpp ../obj/*.o ../External/googletest/lib/libgtest.a ../External/googletest/lib/libgtest_main.a ../obj/*.a
 ../../../External/lcov/bin/lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory ../src/Engine --directory ../include/Backwards/Engine --output-file Engine_Base.info
 ./EngineTest.exe

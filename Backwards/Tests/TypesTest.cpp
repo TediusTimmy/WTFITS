@@ -51,6 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TEST(TypesTests, testFloats)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Types::FloatValue defaulted;
    Backwards::Types::FloatValue low (NumberSystem::getCurrentNumberSystem().fromString("1.0"));
    Backwards::Types::FloatValue med (NumberSystem::getCurrentNumberSystem().fromString("5.0"));

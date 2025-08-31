@@ -56,6 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Backwards/Engine/FunctionContext.h"
 #include "Backwards/Engine/ConstantsSingleton.h"
 
+#include "NumberSystem.h"
+
 class ConsoleLogger final : public Backwards::Engine::Logger
  {
 public:
@@ -67,11 +69,12 @@ std::shared_ptr<Backwards::Types::ValueType> printValue(const std::shared_ptr<Ba
  {
    Backwards::Engine::DefaultDebugger::printValue(std::cout, val);
    std::cout << std::endl;
-   return Backwards::Engine::ConstantsSingleton::getInstance().FLOAT_ZERO;
+   return std::make_shared<Backwards::Types::FloatValue>(NumberSystem::getCurrentNumberSystem().FLOAT_ZERO);
  }
 
 int main (int argc, char ** argv)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Backwards::Engine::Scope global;
    Backwards::Parser::ContextBuilder::createGlobalScope(global); // Create the global scope before the table.
    Backwards::Parser::GetterSetter gs;
