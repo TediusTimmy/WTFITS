@@ -5,7 +5,7 @@ cd ../src/Types
 ../../MakeTest.sh
 mv ./*.o ../../obj
 cd ../../bin
-g++ -o TypesTest -Wall -Wextra -Wpedantic --coverage -O0 -I../../../External/googletest/include -I../include -I../../Numbers -I../../Backwards/include ../Tests/TypesTest.cpp ../obj/*.o ../../../External/googletest/lib/libgtest.a ../../../External/googletest/lib/libgtest_main.a ../obj/*.a -lgmp
+g++ -o TypesTest -Wall -Wextra -Wpedantic --coverage -O0 -I../../../External/googletest/include -I../include -I../../Numbers -I../../Backwards/include ../Tests/TypesTest.cpp ../obj/*.o ../../../External/googletest/lib/libgtest.a ../../../External/googletest/lib/libgtest_main.a ../obj/*.a -lmpfr -lgmp
 ../../../External/lcov/bin/lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory ../src/Types --directory ../include/Forwards/Types --output-file Types_Base.info
 ./TypesTest.exe
 ../../../External/lcov/bin/lcov --rc lcov_branch_coverage=1 --no-external --capture --directory ../src/Types --directory ../include/Forwards/Types --directory . --output-file Types_Run.info

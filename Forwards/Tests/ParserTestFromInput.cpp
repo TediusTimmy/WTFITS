@@ -49,10 +49,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Forwards/Engine/Cell.h"
 #include "Forwards/Engine/SpreadSheet.h"
 #include "Forwards/Engine/Expression.h"
+#include "Forwards/Engine/MemorySpreadSheet.h"
 
 #include "Forwards/Parser/Parser.h"
 
 #include "Forwards/Types/ValueType.h"
+
+#include "NumberSystem.h"
 
 class ConsoleLogger final : public Backwards::Engine::Logger
  {
@@ -63,6 +66,7 @@ public:
 
 int main (int argc, char ** argv)
  {
+   NumberSystem::setCurrentNumberSystem(BCNUM_NUMBER_SYSTEM);
    Forwards::Engine::GetterMap map;
 
    Backwards::Engine::Scope global;
@@ -119,11 +123,12 @@ int main (int argc, char ** argv)
     }
 
    Forwards::Engine::SpreadSheet theSheet;
-   theSheet.sheet.emplace_back(std::vector<std::unique_ptr<Forwards::Engine::Cell> >());
-   theSheet.sheet[0].emplace_back(std::make_unique<Forwards::Engine::Cell>());
+   Forwards::Engine::MemorySpreadSheet backing;
+   theSheet.currentSheet = &backing;
+   theSheet.initCellAt(0U, 0U);
    context.theSheet = &theSheet;
 
-   Forwards::Engine::CellFrame frame (theSheet.sheet[0][0].get(), 0U, 0U);
+   Forwards::Engine::CellFrame frame (theSheet.getCellAt(0U, 0U, ""), 0U, 0U);
    context.pushCell(&frame);
 
    std::string inLine;
@@ -145,7 +150,7 @@ int main (int argc, char ** argv)
 
             if (nullptr != val.get())
              {
-               std::cout << val->toString(0U, 0U) << std::endl;
+               std::cout << val->toString(0U, 0U, false) << std::endl;
              }
             else
              {

@@ -58,7 +58,7 @@ namespace Engine
       size_t row;
     };
 
-   class CallingContext : public Backwards::Engine::CallingContext
+   class CallingContext final : public Backwards::Engine::CallingContext
     {
    public:
       CallingContext();

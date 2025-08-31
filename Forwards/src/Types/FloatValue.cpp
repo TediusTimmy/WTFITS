@@ -68,6 +68,12 @@ namespace Types
       return FLOAT;
     }
 
+   size_t FloatValue::getLength() const
+    {
+      //return value->getLength();
+      return 0;
+    }
+
  } // namespace Types
 
  } // namespace Forwards
