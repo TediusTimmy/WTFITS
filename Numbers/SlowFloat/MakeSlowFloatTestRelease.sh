@@ -9,5 +9,5 @@ fi
 
 g++ -Wall -Wextra -Wpedantic -s -O3 -c SlowFloat.cpp
 
-g++ -o SlowFloatTest -Wall -Wextra -Wpedantic -s -O3 -I../Backwards/External/googletest/include SlowFloatTest.cpp SlowFloat.o ../Backwards/External/googletest/lib/libgtest.a ../Backwards/External/googletest/lib/libgtest_main.a
+g++ -o SlowFloatTest -Wall -Wextra -Wpedantic -s -O3 -I../../../External/googletest/include SlowFloatTest.cpp SlowFloat.o ../../../External/googletest/lib/libgtest.a ../../../External/googletest/lib/libgtest_main.a
 ./SlowFloatTest.exe

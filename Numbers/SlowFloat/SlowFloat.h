@@ -104,6 +104,7 @@ public:
    explicit operator double () const;
  };
 
+extern const SlowFloat sfZero;
 
    std::string toString (const SlowFloat&);
    SlowFloat fromString (const std::string&);
