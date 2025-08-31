@@ -78,6 +78,10 @@ public:
        }
       return value.toString();
     }
+   virtual size_t getLength (void) const override
+    {
+      return value.getLength();
+    }
 
 
    virtual bool isSigned() const override { return value.isSigned(); }

@@ -81,6 +81,10 @@ public:
        }
       return SlowFloat::toString(value);
     }
+   virtual size_t getLength (void) const override
+    {
+      return 18U; // -9.99999999e-99999 ?
+    }
 
 
    virtual bool isSigned() const override { return 0 != ((1U << 31) & value.significand); }

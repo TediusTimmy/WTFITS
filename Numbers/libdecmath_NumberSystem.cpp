@@ -85,6 +85,10 @@ public:
        }
       return toString();
     }
+   virtual size_t getLength (void) const override
+    {
+      return 23U; // -9.999999999999999e-999 ?
+    }
 
 
    virtual bool isSigned() const override { return 1 == dm_double_signbit(value); }

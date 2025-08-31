@@ -90,6 +90,10 @@ public:
       temp << std::setprecision(17U) << value;
       return temp.str();
     }
+   virtual size_t getLength (void) const override
+    {
+      return 23U; // -9.999999999999999e-999 ?
+    }
 
 
    virtual bool isSigned() const override { return std::signbit(value); }

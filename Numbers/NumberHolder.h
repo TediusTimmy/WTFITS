@@ -45,6 +45,7 @@ public:
    virtual double asDouble() const = 0; // This is for indexes, so it can just be an integer.
    virtual std::string toString() const = 0;
    virtual std::string toExprString() const = 0; // In case they are different.
+   virtual size_t getLength (void) const = 0;
 
    virtual bool isSigned() const = 0;
    virtual bool isZero() const = 0;

@@ -163,6 +163,10 @@ public:
        }
       return toString();
     }
+   virtual size_t getLength (void) const override
+    {
+      return precision; // Good enough for the use of the function.
+    }
 
 
    virtual bool isSigned() const override { return 0 != mpfr_signbit(value); }

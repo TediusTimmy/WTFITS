@@ -70,8 +70,7 @@ namespace Types
 
    size_t FloatValue::getLength() const
     {
-      //return value->getLength();
-      return 0;
+      return value->getLength();
     }
 
  } // namespace Types

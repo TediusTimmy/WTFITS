@@ -57,8 +57,8 @@ TEST(TypesTests, testFloats)
    EXPECT_EQ("10", high.toString(0U, 0U, false));
    EXPECT_EQ("10", high.toString(0U, 0U, true));
 
-   EXPECT_EQ(0U, defaulted.getLength()); // TODO: Fixme
-   EXPECT_EQ(0U, high.getLength());
+   EXPECT_EQ(1U, defaulted.getLength());
+   EXPECT_EQ(2U, high.getLength());
 
    EXPECT_EQ(Forwards::Types::FLOAT, defaulted.getType());
    EXPECT_EQ(Forwards::Types::FLOAT, low.getType());
