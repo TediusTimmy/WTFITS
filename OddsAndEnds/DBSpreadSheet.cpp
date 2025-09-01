@@ -188,7 +188,7 @@ Forwards::Engine::Cell* DBSpreadSheet::getCellAtRaw(size_t col, size_t row)
        }
     }
 
-   if ((nullptr != cell) && (nullptr != cell->previousValue.get()))
+   if ((nullptr != cell) && (nullptr != cell->previousValue.get()) && (Forwards::Engine::VALUE == cell->type))
     {
       Backwards::Input::StringInput interlinked (cell->currentInput);
       Forwards::Input::Lexer lexer (interlinked);
