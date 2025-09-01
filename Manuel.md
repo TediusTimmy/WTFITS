@@ -37,19 +37,30 @@ Most of the navigation and commands are taken from the Unix tool `sc`. The tool 
 * Page Up / Page Down : move to the next screen of rows. One can also use `JK`.
 * `H` / `L` : move to the next screen of columns.
 * Home : goto cell A1
-* `g` : type in a cell name, then enter, and the current cell cursor will be moved to that cell. Note that you cannot see the cell name that you are typing.
+* `g` : type in a cell name, then enter, and the current cell cursor will be moved to that cell.
 * `G` : type in a table name, then enter, and view that table (from the SQLite file to analyze) as a sheet.
 * `<` : start entering a label in this cell. Finish by pressing enter. (There are no centered or right-justified labels.)
 * `=` : start entering a formula in this cell. Finish by pressing enter.
 * `q` or F7 : exit. You must next press either 'y' to save and exit, or 'n' to not save and exit, in order to actually exit.
 * `!` : recalculate the sheet
 * `W` : save the sheet
+* `m` : set a copy marker at this cell location
 * `dd` : clear (delete) the current cell
 * `dr` : clear all cells in the current row
 * `dc` : clear all cells in the current column
+* `dm` : clear all cells in the rectangle between the current cell and the marker
 * `yy` : copy the current cell
 * `yd` : clear the copy buffer
-* `pp` : paste into the current cell
+* `yc` : copy the current column
+* `yr` : copy the current row
+* `ym` : copy the rectangle between the current cell and the marker
+* `pp` : paste to the current cell
+* `pc` : paste to the current column
+* `pr` : paste to the current row
+* `pm` : paste the copied data as marked with this the top-right corner
+* `pM` : paste the copied data transposed with this the top-right corner
+* `pf` : paste the copied data into the rectangle between the current cell and the marker in column-major order
+* `pt` : paste the copied data into the rectangle between the current cell and the marker in row-major order
 * `e` : edit the current cell's contents
 * Shift left/right (also F9/F12) : widen or narrow the current column. Columns can be between 1 and 40 cells wide.
 * `#` : Switch between column-major and row-major recalculation.
@@ -62,6 +73,10 @@ Most of the navigation and commands are taken from the Unix tool `sc`. The tool 
 * `:^` : Goto row 1 of the current column.
 * `:#` : Goto the last row of the current column with meaningful data in it.
 * `vv` : replace the current cell with its evaluated value
+* `vm` : replace the cell with its evaluated value for all cells in the rectangle between the current cell and the marker
+* `v=` : flip the current cell between a label and a formula
+* `v+` : flip the cell between a label and a formula for all cells in the rectangle between the current cell and the marker
+* `` ` `` : Reset the screen (for systems that don't have SIGWINCH)
 
 ### Edit Mode
 Edit mode is entered when you start entering a label or formula.

@@ -134,7 +134,9 @@ int main (int argc, char ** argv)
       state.manager = &manager;
       manager.context = &context;
 
-      state.yankedType = Forwards::Engine::ERROR;
+      state.yankedCols = 0U;
+      state.m_row = 0U;
+      state.m_col = 0U;
 
       state.context = &context;
 
