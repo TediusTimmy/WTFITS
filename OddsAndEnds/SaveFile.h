@@ -36,4 +36,8 @@ void LoadFile(const std::string& fileName, DBManager& manager, std::vector<std::
    const std::vector<std::pair<std::string, std::string> >& addLibs);
 void AttachDB(const std::string& fileName, DBManager& manager);
 
+   // Returns the argument after the "-i".
+int CheckForCSVImport (int argc, char ** argv, int checkLocation, std::string& fileName);
+void ImportCSV (const std::string& fileName, Forwards::Engine::SpreadSheet*);
+
 #endif /* SAVEFILE_H */
