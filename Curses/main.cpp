@@ -106,6 +106,11 @@ int main (int argc, char ** argv)
          NumberSystem::setCurrentNumberSystem(MPFR_NUMBER_SYSTEM);
          ++file;
        }
+      else if (std::string("-6") == argv[file])
+       {
+         NumberSystem::setCurrentNumberSystem(DAPFP_NUMBER_SYSTEM);
+         ++file;
+       }
     }
    if (nullptr == &NumberSystem::getCurrentNumberSystem())
     {
