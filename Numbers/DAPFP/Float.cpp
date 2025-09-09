@@ -206,10 +206,10 @@ namespace BigInt
 
       difference = static_cast<unsigned long>(diff.toInt());
 
-         //Account for a rounding digit.
-      if (difference > (prec + 1))
+         // Account for a  guard digit (in case of cancellation) and a rounding digit.
+      if (difference > (prec + 2))
        {
-         difference = prec + 2;
+         difference = prec + 3;
 
             // For these cases, always do the math.
          if ((ROUND_POSITIVE_INFINITY == Fixed::getRoundMode()) ||

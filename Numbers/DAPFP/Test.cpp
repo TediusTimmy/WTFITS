@@ -636,6 +636,16 @@ TEST(FixedTests, testSubs)
    EXPECT_EQ("-0.0000000e0", c.toString());
 
    BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_ODD);
+
+   a.fromString("1.0000000e9");
+   b.fromString("5.0000000e0");
+
+   // 1000000000 - 5 = 999999995
+   c = a - b;
+   EXPECT_EQ("9.9999999e8", c.toString());
+
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
  }
 
 TEST(FixedTests, testComparisons)
