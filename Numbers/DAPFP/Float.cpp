@@ -33,14 +33,6 @@ SUCH DAMAGE.
 #include <cstring>
 #include "Float.hpp"
 
-/*
-   Known deficiencies:
-      * No sticky digit.
-         Directed roundings with large magnitude don't work. 1000.0 - .00001 <> 999.99
-         However, double round mode still works because math with like magnitudes is exact.
-      * Negative zero on round to negative infinity.
-*/
-
 namespace BigInt
  {
 
@@ -199,7 +191,7 @@ namespace BigInt
     }
 
 
-   bool Float::change (const Float & arg1, const Float & arg2)
+   bool Float::change (const Float & arg1, const Float & arg2, unsigned long& difference)
     {
       unsigned long prec;
       Integer diff;
@@ -212,8 +204,23 @@ namespace BigInt
          arg1.exponent() - arg2.exponent() :
          arg2.exponent() - arg1.exponent();
 
+      difference = static_cast<unsigned long>(diff.toInt());
+
          //Account for a rounding digit.
-      if (static_cast<unsigned long>(diff.toInt()) > (prec + 1)) return false;
+      if (difference > (prec + 1))
+       {
+         difference = prec + 2;
+
+            // For these cases, always do the math.
+         if ((ROUND_POSITIVE_INFINITY == Fixed::getRoundMode()) ||
+             (ROUND_NEGATIVE_INFINITY == Fixed::getRoundMode()) ||
+             (ROUND_ZERO == Fixed::getRoundMode()))
+          {
+            return true;
+          }
+
+         return false;
+       }
       return true;
     }
 
@@ -255,7 +262,7 @@ namespace BigInt
             return temp;
           }
 
-         temp.copySign(lhs);
+         temp.Sign = lhs.Sign;
          temp.Infinity = true;
          return temp;
        }
@@ -263,13 +270,13 @@ namespace BigInt
          //Anything else with infinity is infinity
       if (lhs.isInfinity())
        {
-         temp.copySign(lhs);
+         temp.Sign = lhs.Sign;
          temp.Infinity = true;
          return temp;
        }
       if (rhs.isInfinity())
        {
-         temp.copySign(rhs);
+         temp.Sign = rhs.Sign;
          temp.Infinity = true;
          return temp;
        }
@@ -280,22 +287,21 @@ namespace BigInt
       if (rhs.isZero()) return lhs;
       if (lhs.isZero()) return rhs;
 
+      unsigned long diff;
          //Do we need to compute anything?
-      if (Float::change(lhs, rhs))
+      if (Float::change(lhs, rhs, diff))
        {
          Float temp1 (lhs), temp2 (rhs);
             //Denormalize the Precisions to take account of the Exponents
          if (0 < temp1.Exponent.compare(temp2.Exponent))
           {
             temp.Exponent = temp1.Exponent;
-            temp2.Data.setPrecision
-               (temp2.Data.getPrecision() + (temp1.Exponent - temp2.Exponent).toInt());
+            temp2.Data.setPrecision(temp2.Data.getPrecision() + diff);
           }
          else if (0 > temp1.Exponent.compare(temp2.Exponent))
           {
             temp.Exponent = temp2.Exponent;
-            temp1.Data.setPrecision
-               (temp1.Data.getPrecision() + (temp2.Exponent - temp1.Exponent).toInt());
+            temp1.Data.setPrecision(temp1.Data.getPrecision() + diff);
           }
          else temp.Exponent = temp1.Exponent;
 
@@ -313,6 +319,9 @@ namespace BigInt
          temp.normalize();
          temp.setPrecision(lhs.Data.getPrecision() > rhs.Data.getPrecision() ?
             lhs.Data.getPrecision() : rhs.Data.getPrecision());
+
+         if (temp.Data.isZero() && (ROUND_NEGATIVE_INFINITY == Fixed::getRoundMode()))
+            temp.Sign = true;
        }
       else
        {
@@ -349,20 +358,20 @@ namespace BigInt
             return temp;
           }
 
-         temp.copySign(lhs);
+         temp.Sign = lhs.Sign;
          temp.Infinity = true;
          return temp;
        }
 
       if (lhs.isInfinity())
        {
-         temp.copySign(lhs);
+         temp.Sign = lhs.Sign;
          temp.Infinity = true;
          return temp;
        }
       if (rhs.isInfinity())
        {
-         temp.setSign(!rhs.Sign);
+         temp.Sign = !rhs.Sign;
          temp.Infinity = true;
          return temp;
        }
@@ -372,20 +381,19 @@ namespace BigInt
       if (rhs.isZero()) return lhs;
       if (lhs.isZero()) return -rhs;
 
-      if (Float::change(lhs, rhs))
+      unsigned long diff;
+      if (Float::change(lhs, rhs, diff))
        {
          Float temp1 (lhs), temp2 (rhs);
          if (0 < temp1.Exponent.compare(temp2.Exponent))
           {
             temp.Exponent = temp1.Exponent;
-            temp2.Data.setPrecision
-               (temp2.Data.getPrecision() + (temp1.Exponent - temp2.Exponent).toInt());
+            temp2.Data.setPrecision(temp2.Data.getPrecision() + diff);
           }
          else if (0 > temp1.Exponent.compare(temp2.Exponent))
           {
             temp.Exponent = temp2.Exponent;
-            temp1.Data.setPrecision
-               (temp1.Data.getPrecision() + (temp2.Exponent - temp1.Exponent).toInt());
+            temp1.Data.setPrecision(temp1.Data.getPrecision() + diff);
           }
          else temp.Exponent = temp1.Exponent;
 
@@ -400,6 +408,9 @@ namespace BigInt
          temp.normalize();
          temp.setPrecision(lhs.Data.getPrecision() > rhs.Data.getPrecision() ?
             lhs.Data.getPrecision() : rhs.Data.getPrecision());
+
+         if (temp.Data.isZero() && (ROUND_NEGATIVE_INFINITY == Fixed::getRoundMode()))
+            temp.Sign = true;
        }
       else
        {
@@ -434,7 +445,7 @@ namespace BigInt
        }
 
          //Put this here, as Zero and Infinity need the correct sign.
-      temp.setSign(lhs.isSigned() ^ rhs.isSigned());
+      temp.Sign = lhs.isSigned() ^ rhs.isSigned();
 
          //Infinity handling
       if (lhs.isInfinity() || rhs.isInfinity())
@@ -492,7 +503,7 @@ namespace BigInt
        }
 
          //Put this here, as Zero and Infinity need the correct sign.
-      temp.setSign(lhs.isSigned() ^ rhs.isSigned());
+      temp.Sign = lhs.isSigned() ^ rhs.isSigned();
 
          //Return an infinity
       if (lhs.isInfinity() || rhs.isZero())

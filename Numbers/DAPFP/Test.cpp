@@ -406,17 +406,37 @@ TEST(FixedTests, testAdds)
    c = a - b;
    EXPECT_EQ("0.0000000e0", c.toString());
 
-   // TODO: fixme
    BigInt::Fixed::setRoundMode(BigInt::ROUND_NEGATIVE_INFINITY);
 
    a.fromString("1.1111111e0");
    b.fromString("-1.1111111e-90");
 
    c = a + b;
-   EXPECT_EQ("1.1111111e0", c.toString()); // should be 1.1111110e0
+   EXPECT_EQ("1.1111110e0", c.toString());
 
    c = b + a;
-   EXPECT_EQ("1.1111111e0", c.toString()); // should be 1.1111110e0
+   EXPECT_EQ("1.1111110e0", c.toString());
+
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_ZERO);
+
+   a.fromString("1.1111111e0");
+   b.fromString("-1.1111111e-90");
+
+   c = a + b;
+   EXPECT_EQ("1.1111110e0", c.toString());
+
+   c = b + a;
+   EXPECT_EQ("1.1111110e0", c.toString());
+
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_NEGATIVE_INFINITY);
+
+   a.fromString("-1.1111111e0");
+   b.fromString("1.1111111e0");
+
+   c = a + b;
+   EXPECT_EQ("-0.0000000e0", c.toString());
 
    BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
 
@@ -583,14 +603,13 @@ TEST(FixedTests, testSubs)
    c = b - a;
    EXPECT_EQ("-1.1111111e0", c.toString());
 
-   // TODO: fixme
    BigInt::Fixed::setRoundMode(BigInt::ROUND_NEGATIVE_INFINITY);
 
    a.fromString("1.1111111e0");
    b.fromString("1.1111111e-90");
 
    c = a - b;
-   EXPECT_EQ("1.1111111e0", c.toString()); // should be 1.1111110e0
+   EXPECT_EQ("1.1111110e0", c.toString());
 
    c = b - a;
    EXPECT_EQ("-1.1111111e0", c.toString());
@@ -605,7 +624,16 @@ TEST(FixedTests, testSubs)
    EXPECT_EQ("1.1111111e0", c.toString());
 
    c = b - a;
-   EXPECT_EQ("-1.1111111e0", c.toString()); // should be -1.1111110e0
+   EXPECT_EQ("-1.1111110e0", c.toString());
+
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
+   BigInt::Fixed::setRoundMode(BigInt::ROUND_NEGATIVE_INFINITY);
+
+   a.fromString("1.1111111e0");
+   b.fromString("1.1111111e0");
+
+   c = a - b;
+   EXPECT_EQ("-0.0000000e0", c.toString());
 
    BigInt::Fixed::setRoundMode(BigInt::ROUND_TIES_EVEN);
  }

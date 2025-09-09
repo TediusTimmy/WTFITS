@@ -57,7 +57,14 @@ public:
     {
       if (value.isInfinity())
        {
-         return INFINITY;
+         if (value.isSigned())
+          {
+            return -INFINITY;
+          }
+         else
+          {
+            return INFINITY;
+          }
        }
       else if (value.isNaN())
        {

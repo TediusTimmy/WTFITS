@@ -43,7 +43,7 @@ namespace BigInt
          static unsigned long minPrecision;
          static unsigned long maxPrecision;
 
-         static bool change (const Float &, const Float &);
+         static bool change (const Float &, const Float &, unsigned long&);
 
       public:
          static unsigned long getMinPrecision (void) { return minPrecision; }
@@ -109,20 +109,13 @@ namespace BigInt
             { fromString(src.c_str()); }
          void fromString (const char *);
 
-         Float & negate (void)
-            { Sign = !Sign; return *this; }
-         Float & copySign (const Float & of)
-            { Sign = of.Sign; return *this; }
-         Float & setSign (bool toThis)
-            { Sign = toThis; return *this; }
-
          friend Float operator + (const Float &, const Float &);
          friend Float operator - (const Float &, const Float &);
          friend Float operator * (const Float &, const Float &);
          friend Float operator / (const Float &, const Float &);
 
          Float operator - (void) const
-          { Float returnedFloat(*this); return returnedFloat.negate(); }
+          { Float returnedFloat(*this); returnedFloat.Sign = !returnedFloat.Sign; return returnedFloat; }
          bool operator ! (void) const { return isZero(); }
 
          Float & operator = (const Float &) = default;
